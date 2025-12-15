@@ -6,14 +6,10 @@ using WeatherWebsite.Services;
 
 namespace WeatherWebsite.Controllers
 {
-    public class WeatherMapController : Controller
+    public class WeatherMapController(ILogger<WeatherMapController> logger) : Controller
     {
-        private readonly ILogger<WeatherMapController> _logger;
+        private readonly ILogger<WeatherMapController> _logger = logger;
 
-        public WeatherMapController(ILogger<WeatherMapController> logger, WeatherApiClient weatherApiClient)
-        {
-            _logger = logger;
-        }
         public IActionResult Index()
         {
             return View();

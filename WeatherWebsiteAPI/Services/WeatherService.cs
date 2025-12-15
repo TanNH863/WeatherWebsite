@@ -35,6 +35,22 @@ namespace WeatherWebsiteAPI.Services
             }
         }
 
+        public async Task<WeatherData> GetCurrentWeather(double lat, double lon)
+        {
+            string url = $"{apiUrl}weather?lat={lat}&lon={lon}&units=metric&appid={apiKey}";
+            HttpResponseMessage response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                var weatherData = JsonConvert.DeserializeObject<WeatherData>(jsonString);
+                return weatherData ?? new WeatherData();
+            }
+            else
+            {
+                throw new Exception("Error fetching current weather data.");
+            }
+        }
+
         public async Task<ForecastData> GetWeatherForecast(string location)
         {
             string url = $"{apiUrl}forecast?q={location}&units=metric&appid={apiKey}";

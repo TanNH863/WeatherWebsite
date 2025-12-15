@@ -29,6 +29,20 @@ namespace WeatherWebsiteAPI.Controllers
             }
         }
 
+        [HttpGet("current/coordinates")]
+        public async Task<ActionResult<WeatherData>> GetCurrentWeather([FromQuery] double lat, [FromQuery] double lon)
+        {
+            try
+            {
+                var data = await _weatherService.GetCurrentWeather(lat, lon);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("forecast")]
         public async Task<ActionResult<ForecastData>> GetWeatherForecast([FromQuery] string location)
         {
