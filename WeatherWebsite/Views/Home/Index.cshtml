@@ -1,4 +1,5 @@
-﻿@{
+﻿@model dynamic
+@{
     ViewData["Title"] = "Home Page";
     var currentWeather = ViewData["CurrentWeather"] as WeatherData;
     var forecast = ViewData["Forecast"] as ForecastData;
@@ -7,205 +8,193 @@
     var selectedTimeZone = ViewData["SelectedTimeZone"] as string;
     var air = aqiData?.List?.FirstOrDefault();
     var aqiLevel = air?.Main?.AQI ?? 0;
-    var aqiColorClass = getAQIColor(aqiLevel);
 
-    string GetIconSrc(string Icon) => $"http://openweathermap.org/img/wn/{Icon}@2x.png";
+    string GetIconSrc(string icon) => $"http://openweathermap.org/img/wn/{icon}@4x.png";
 
-    string getAQIColor(int aqi)
+    string GetAQIColor(int aqi) => aqi switch
     {
-        return aqi switch
-        {
-            1 => "text-white bg-green",
-            2 => "text-black bg-yellow",
-            3 => "text-white bg-orange",
-            4 => "text-white bg-red",
-            5 => "text-white bg-purple",
-            _ => "text-white bg-primary"
-        };
-    }
+        1 => "bg-success text-white",
+        2 => "bg-warning text-dark",
+        3 => "bg-orange text-white",
+        4 => "bg-danger text-white",
+        5 => "bg-purple text-white",
+        _ => "bg-primary text-white"
+    };
 
-    string getAQIStatus(int aqi)
+    string GetAQIStatus(int aqi) => aqi switch
     {
-        return aqi switch
-        {
-            1 => "Good",
-            2 => "Fair",
-            3 => "Moderate",
-            4 => "Poor",
-            5 => "Very Poor",
-            _ => "Unknown"
-        };
-    }
+        1 => "Good",
+        2 => "Fair",
+        3 => "Moderate",
+        4 => "Poor",
+        5 => "Very Poor",
+        _ => "Unknown"
+    };
 }
 
-<div class="container">
+<div class="container-fluid py-5">
     <div class="row">
-        <div class="col-md-9">
-            <h2>Weather Dashboard</h2>
-            <form method="post" class="text-center">
-                <div class="form-group pb-4">
-                    <label for="location">Select Location:</label>
-                    @Html.DropDownList("selectedLocation", ViewData["Locations"] as SelectList,
-                    new { @class = "form-control", @id = "location" } )
+        <div class="col-lg-8 mx-auto">
+            <header class="text-center mb-5">
+                <h1 class="display-4">Weather Dashboard</h1>
+                <p class="lead">Your local weather, updated in real-time.</p>
+            </header>
+
+            <form method="post" class="row g-3 align-items-center justify-content-center mb-5">
+                <div class="col-auto">
+                    <label for="location" class="visually-hidden">Select Location:</label>
+                    @Html.DropDownList("selectedLocation", ViewData["Locations"] as SelectList, new { @class = "form-select form-select-lg", @id = "location" })
                 </div>
-                <button type="submit" class="btn btn-primary">Get Weather Info</button>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-lg">Get Weather</button>
+                </div>
             </form>
-        </div>
-        <div class="col-md-3">
-            <input type="hidden" id="timeZone" value="@selectedTimeZone" />
-            <p class="text-center"><strong>Current Time:</strong> <span id="currentTime"></span></p>
-            <div class="clock">
-                <div class="clock-face">
-                    <div class="hand hour-hand"></div>
-                    <div class="hand minute-hand"></div>
-                    <div class="hand second-hand"></div>
-                </div>
-            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-header">Current Weather in @selectedLocation</div>
-                <div class="card-body">
-                    @if (currentWeather == null)
-                    {
-                        <div class="row">
-                            <p>No Weather Data</p>
+    @if (currentWeather != null)
+    {
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Current Weather in @selectedLocation</h5>
+                        <input type="hidden" id="timeZone" value="@selectedTimeZone" />
+                        <p class="mb-0"><strong>Current Time:</strong> <span id="currentTime"></span></p>
+                    </div>
+                    <div class="card-body text-center">
+                        <img src="@GetIconSrc(currentWeather.Weather[0].Icon)" alt="@currentWeather.Weather[0].Description" class="img-fluid mb-3" style="width: 120px;">
+                        <h2 class="card-title">@currentWeather.Main.Temp.ToString() °C</h2>
+                        <p class="card-text text-muted">@currentWeather.Weather[0].Description</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <small class="text-muted">Last updated: @DateTime.Now.ToShortTimeString()</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">5-Day Forecast</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="temperatureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (aqiData != null)
+        {
+            <div class="row mt-4">
+                <div class="col-lg-12">
+                    <div class="card shadow-sm @GetAQIColor(aqiLevel)">
+                        <div class="card-header">
+                            <h5 class="mb-0">Air Quality Index (AQI) in @selectedLocation - Status: @GetAQIStatus(aqiLevel)</h5>
                         </div>
-                    }
-                    <div class="row">
-                        <div class="col-md-4">
-                            <img src="@GetIconSrc(currentWeather.Weather[0].Icon)"
-                                alt="@currentWeather.Weather[0].Description" />
-                        </div>
-                        <div class="col-md-8">
-                            <h3 class="card-title">@currentWeather.Main.Temp °C</h3>
-                            <p class="card-text">@currentWeather.Weather[0].Description</p>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                @foreach (var prop in air.Components.GetType().GetProperties())
+                                {
+                                    <div class="col">
+                                        <strong>@prop.Name:</strong>
+                                        <p>@prop.GetValue(air.Components) μg/m³</p>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card @aqiColorClass mb-3">
-                <div class="card-header">Current Air Quality in @selectedLocation</div>
-                <div class="card-body">
-                    @if (aqiData == null)
-                    {
-                        <div class="row">
-                            <p>No AQI Data</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="row">
-                            <h4 class="mt-2">Status: @getAQIStatus(air.Main.AQI)</h4>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <ul class="list-unstyled mt-2">
-                                    <li><strong>CO:</strong> @air.Components.CO μg/m³</li>
-                                    <li><strong>NO:</strong> @air.Components.NO μg/m³</li>
-                                    <li><strong>NO₂:</strong> @air.Components.NO2 μg/m³</li>
-                                    <li><strong>O₃:</strong> @air.Components.O3 μg/m³</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <ul class="list-unstyled mt-2">
-                                    <li><strong>SO₂:</strong> @air.Components.SO2 μg/m³</li>
-                                    <li><strong>PM2.5:</strong> @air.Components.PM2_5 μg/m³</li>
-                                    <li><strong>PM10:</strong> @air.Components.PM10 μg/m³</li>
-                                    <li><strong>NH₃:</strong> @air.Components.NH3 μg/m³</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    }
-
-                </div>
-            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info text-center" role="alert">
+            Please select a location to view the weather information.
         </div>
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">5-Day Weather Chart</div>
-                <div class="card-body">
-                    <canvas id="temperatureChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
+    }
 </div>
 
 @section scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        var ctx = document.getElementById('temperatureChart').getContext('2d');
-        var temperatures = @Html.Raw(Json.Serialize(forecast.List.Select(day => day.Main.Temp)));
-        var humidityLevels = @Html.Raw(Json.Serialize(forecast.List.Select(day => day.Main.Humidity)));
-        var labels = @Html.Raw(Json.Serialize(forecast.List.Select(day => day.DateTimeString)));
+        document.addEventListener("DOMContentLoaded", function () {
+            // Clock
+            function updateTime() {
+                const timeZone = document.getElementById('timeZone').value;
+                if (!timeZone) return;
 
-        // Generate color arrays based on temperature ranges
-        var backgroundColors = temperatures.map((temp) => {
-            if (temp < 0) return 'rgba(0, 0, 255, 0.5)'; // Below 0°C
-            else if (temp >= 0 && temp < 10) return 'rgba(173, 216, 230, 0.5)'; // 0 to 10°C
-            else if (temp >= 10 && temp < 20) return 'rgba(255, 255, 0, 0.5)'; // 10 to 20°C
-            else if (temp >= 20 && temp < 30) return 'rgba(255, 165, 0, 0.5)'; // 20 to 30°C
-            else if (temp >= 30 && temp < 35) return 'rgba(255, 69, 0, 0.5)'; // 30 to 35°C
-            else if (temp >= 35 && temp < 40) return 'rgba(255, 0, 0, 0.5)'; // 35 to 39°C
-            else return 'rgba(128, 0, 128, 0.5)'; // Over 40°C
-        });
+                const options = { timeZone: timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+                const currentTime = new Date().toLocaleTimeString('en-US', options);
+                document.getElementById('currentTime').textContent = currentTime;
+            }
+            setInterval(updateTime, 1000);
+            updateTime();
 
-        var borderColors = temperatures.map((temp) => {
-            if (temp < 0) return 'rgba(0, 0, 255, 1)';
-            else if (temp >= 0 && temp < 10) return 'rgba(173, 216, 230, 1)';
-            else if (temp >= 10 && temp < 20) return 'rgba(255, 255, 0, 1)';
-            else if (temp >= 20 && temp < 30) return 'rgba(255, 165, 0, 1)';
-            else if (temp >= 30 && temp < 35) return 'rgba(255, 69, 0, 1)';
-            else if (temp >= 35 && temp < 40) return 'rgba(255, 0, 0, 1)';
-            else return 'rgba(128, 0, 128, 1)';
-        });
+            // Chart
+            if (document.getElementById('temperatureChart')) {
+                var ctx = document.getElementById('temperatureChart').getContext('2d');
+                var temperatures = @Html.Raw(Json.Serialize(forecast.List.Select(day => day.Main.Temp)));
+                var humidityLevels = @Html.Raw(Json.Serialize(forecast.List.Select(day => day.Main.Humidity)));
+                var labels = @Html.Raw(Json.Serialize(forecast.List.Select(day => day.DateTimeString)));
 
-        var temperatureChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Temperature (°C)',
-                    data: temperatures,
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors,
-                    borderWidth: 1,
-                    yAxisID: 'temperature-axis'
-                },
-                {
-                    label: 'Humidity (%)',
-                    data: humidityLevels,
-                    type: 'line',
-                    borderColor: 'rgba(0, 123, 255, 1)',
-                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                    fill: false,
-                    borderWidth: 2,
-                    yAxisID: 'humidity-axis'
-                }]
-            },
-            options: {
-                scales: {
-                    'temperature-axis': {
-                        beginAtZero: true
+                var backgroundColors = temperatures.map(temp => {
+                    if (temp < 0) return 'rgba(0, 0, 255, 0.7)';
+                    if (temp < 10) return 'rgba(173, 216, 230, 0.7)';
+                    if (temp < 20) return 'rgba(255, 255, 0, 0.7)';
+                    if (temp < 30) return 'rgba(255, 165, 0, 0.7)';
+                    return 'rgba(255, 0, 0, 0.7)';
+                });
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Temperature (°C)',
+                                data: temperatures,
+                                backgroundColor: backgroundColors,
+                                yAxisID: 'y-axis-temp'
+                            },
+                            {
+                                label: 'Humidity (%)',
+                                data: humidityLevels,
+                                type: 'line',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                yAxisID: 'y-axis-humidity'
+                            }
+                        ]
                     },
-                    'humidity-axis': {
-                        type: 'linear',
-                        position: 'right',
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Humidity (%)'
-                        },
-                        grid: {
-                            display: false
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            'y-axis-temp': {
+                                beginAtZero: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Temperature (°C)'
+                                }
+                            },
+                            'y-axis-humidity': {
+                                beginAtZero: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Humidity (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
                         }
                     }
-                }
+                });
             }
         });
     </script>
