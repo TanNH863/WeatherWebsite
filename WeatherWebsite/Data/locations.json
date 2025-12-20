@@ -1,0 +1,142 @@
+[
+  {
+    "ID": "LON",
+    "Name": "London, England, UK",
+    "TimeZone": "Europe/London",
+    "Lat": 51.5074,
+    "Lng": -0.1278
+  },
+  {
+    "ID": "LWK",
+    "Name": "Lerwick, Scotland, UK",
+    "TimeZone": "Europe/London",
+    "Lat": 60.1553,
+    "Lng": -1.1456
+  },
+  {
+    "ID": "GLA",
+    "Name": "Glasgow, Scotland, UK",
+    "TimeZone": "Europe/London",
+    "Lat": 55.8642,
+    "Lng": -4.2518
+  },
+  {
+    "ID": "CWL",
+    "Name": "Cardiff, Wales, UK",
+    "TimeZone": "Europe/London",
+    "Lat": 51.4816,
+    "Lng": -3.1791
+  },
+  {
+    "ID": "BFS",
+    "Name": "Belfast, Northern Ireland, UK",
+    "TimeZone": "Europe/London",
+    "Lat": 54.5973,
+    "Lng": -5.9301
+  },
+  {
+    "ID": "PAR",
+    "Name": "Paris, France",
+    "TimeZone": "Europe/Paris",
+    "Lat": 48.8566,
+    "Lng": 2.3522
+  },
+  {
+    "ID": "AMS",
+    "Name": "Amsterdam, Netherlands",
+    "TimeZone": "Europe/Amsterdam",
+    "Lat": 52.3676,
+    "Lng": 4.9041
+  },
+  {
+    "ID": "BER",
+    "Name": "Berlin, Germany",
+    "TimeZone": "Europe/Berlin",
+    "Lat": 52.52,
+    "Lng": 13.405
+  },
+  {
+    "ID": "ATH",
+    "Name": "Athens, Greece",
+    "TimeZone": "Europe/Athens",
+    "Lat": 37.9838,
+    "Lng": 23.7275
+  },
+  {
+    "ID": "BRU",
+    "Name": "Brussels, Belgium",
+    "TimeZone": "Europe/Brussels",
+    "Lat": 50.8503,
+    "Lng": 4.3517
+  },
+  {
+    "ID": "NYC",
+    "Name": "New York, USA",
+    "TimeZone": "America/New_York",
+    "Lat": 40.7128,
+    "Lng": -74.006
+  },
+  {
+    "ID": "LIM",
+    "Name": "Lima, Peru",
+    "TimeZone": "America/Lima",
+    "Lat": -12.0464,
+    "Lng": -77.0428
+  },
+  {
+    "ID": "TYO",
+    "Name": "Tokyo, Japan",
+    "TimeZone": "Asia/Tokyo",
+    "Lat": 35.6762,
+    "Lng": 139.6503
+  },
+  {
+    "ID": "DOH",
+    "Name": "Doha, Qatar",
+    "TimeZone": "Asia/Qatar",
+    "Lat": 25.276987,
+    "Lng": 51.520008
+  },
+  {
+    "ID": "CAI",
+    "Name": "Cairo, Egypt",
+    "TimeZone": "Africa/Cairo",
+    "Lat": 30.0444,
+    "Lng": 31.2357
+  },
+  {
+    "ID": "JNB",
+    "Name": "Johannesburg, South Africa",
+    "TimeZone": "Africa/Johannesburg",
+    "Lat": -26.2041,
+    "Lng": 28.0473
+  },
+  {
+    "ID": "DEL",
+    "Name": "New Delhi, India",
+    "TimeZone": "Asia/Kolkata",
+    "Lat": 28.6139,
+    "Lng": 77.209
+  },
+  {
+    "ID": "SGN",
+    "Name": "Ho Chi Minh City, Vietnam",
+    "TimeZone": "Asia/Ho_Chi_Minh",
+    "Lat": 10.8231,
+    "Lng": 106.6297
+  },
+  {
+    "ID": "HAN",
+    "Name": "Hanoi, Vietnam",
+    "TimeZone": "Asia/Ho_Chi_Minh",
+    "Lat": 21.0285,
+    "Lng": 105.8542
+  },
+  {
+    "ID": "AKL",
+    "Name": "Auckland, New Zealand",
+    "TimeZone": "Pacific/Auckland",
+    "Lat": -36.8485,
+    "Lng": 174.7633
+  }
+]

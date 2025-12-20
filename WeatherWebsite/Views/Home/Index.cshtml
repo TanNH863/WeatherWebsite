@@ -55,25 +55,34 @@
     @if (currentWeather != null)
     {
         <div class="row g-4">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="card h-100 shadow-sm">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Current Weather in @selectedLocation</h5>
-                        <input type="hidden" id="timeZone" value="@selectedTimeZone" />
-                        <p class="mb-0"><strong>Current Time:</strong> <span id="currentTime"></span></p>
+                    <div id="currentWeatherHeader" class="card-header d-flex align-items-center">
+                        <div class="row g-2">
+                            <h6 class="mb-0">Current Weather in</h6>
+                            <h5 class="mb-0">@selectedLocation</h5>
+                            <input type="hidden" id="timeZone" value="@selectedTimeZone" />
+                            <p class="mb-0"><strong>Current Time:</strong> <span id="currentTime"></span></p>
+                        </div>
                     </div>
                     <div class="card-body text-center">
                         <img src="@GetIconSrc(currentWeather.Weather[0].Icon)" alt="@currentWeather.Weather[0].Description" class="img-fluid mb-3" style="width: 120px;">
                         <h2 class="card-title">@currentWeather.Main.Temp.ToString() °C</h2>
                         <p class="card-text text-muted">@currentWeather.Weather[0].Description</p>
                     </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Humidity:</strong> @currentWeather.Main.Humidity%</li>
+                        <li class="list-group-item"><strong>Wind:</strong> @currentWeather.Wind.Speed m/s</li>
+                        <li class="list-group-item"><strong>Pressure:</strong> @currentWeather.Main.Pressure hPa</li>
+                        <li class="list-group-item"><strong>Visibility:</strong> @currentWeather.Visibility m</li>
+                    </ul>
                     <div class="card-footer text-center">
-                        <small class="text-muted">Last updated: @DateTime.Now.ToShortTimeString()</small>
+                        <small class="text-muted">Last updated: @DateTime.Now.ToShortTimeString() (local time)</small>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-8">
+            <div class="col-lg-9">
                 <div class="card h-100 shadow-sm">
                     <div class="card-header bg-secondary text-white">
                         <h5 class="mb-0">5-Day Forecast</h5>
@@ -130,8 +139,48 @@
                 const currentTime = new Date().toLocaleTimeString('en-US', options);
                 document.getElementById('currentTime').textContent = currentTime;
             }
-            setInterval(updateTime, 1000);
+            function updateCardColor() {
+                const timeZone = document.getElementById('timeZone').value;
+                if (!timeZone) return;
+
+                // Get local time in selected timezone
+                const now = new Date().toLocaleString('en-US', { timeZone: timeZone });
+                const hour = new Date(now).getHours();
+
+                // Decide color class based on local hour
+                let colorClass = '';
+                let backgroundColor = '';
+                let textColor = '';
+                if (hour >= 6 && hour < 12) { // Morning
+                    backgroundColor = '#87CEEB';
+                    textColor = '#000000';
+                }
+                else if (hour >= 12 && hour < 18) { // Afternoon
+                    backgroundColor = '#FFD700';
+                    textColor = '#000000';
+                }
+                else if (hour >= 18 && hour < 24) { // Evening
+                    backgroundColor = '#4682B4';
+                    textColor = '#FFFFFF';
+                }
+                else { // Late night
+                    backgroundColor = '#000080';
+                    textColor = '#FFFFFF';
+                }
+
+                // Apply to the Current Weather card header
+                const header = document.querySelector('#currentWeatherHeader');
+                header.style.backgroundColor = backgroundColor;
+                header.style.color = textColor;
+                header.className = 'card-header d-flex justify-content-between align-items-center';
+            }
+
+            setInterval(() => {
+                updateTime();
+                updateCardColor();
+            }, 1000);
             updateTime();
+            updateCardColor();
 
             // Chart
             if (document.getElementById('temperatureChart')) {
