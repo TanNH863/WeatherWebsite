@@ -26,7 +26,7 @@ namespace WeatherWebsite.Controllers
             ViewData["Locations"] = new SelectList(locations, "Name", "Name");
 
             // Default location for the initial load
-            string selectedLocation = "London, UK";
+            string selectedLocation = "London, England, UK";
             ViewData["SelectedLocation"] = selectedLocation;
 
             // Get weather data for the selected location

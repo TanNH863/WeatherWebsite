@@ -13,15 +13,13 @@ A web application for viewing current weather, 3-day forecasts, world time, and 
 ## Project Structure
 
 - `WeatherWebsite/` - Main ASP.NET Core MVC web application
-- `WeatherWebsiteAPI/` - ASP.NET Core Web API project (template/sample)
+- `WeatherWebsiteAPI/` - ASP.NET Core Web API project
 
 ## Getting Started
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (for WeatherWebsite)
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (for WeatherWebsiteAPI)
-- [Node.js](https://nodejs.org/) (optional, for frontend assets)
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - OpenWeatherMap API key
 
 ### Setup
@@ -29,7 +27,7 @@ A web application for viewing current weather, 3-day forecasts, world time, and 
 1. **Clone the repository:**
 
    ```sh
-   git clone <repo-url>
+   git clone https://github.com/TanNH863/WeatherWebsite.git
    cd WeatherWebsite
    ```
 
@@ -50,7 +48,8 @@ A web application for viewing current weather, 3-day forecasts, world time, and 
 4. **Run the application:**
 
    ```sh
-   dotnet run --project WeatherWebsite/WeatherWebsite.csproj
+   dotnet run --project WeatherWebsite --launch-profile https
+   dotnet run --project WeatherWebsiteAPI --launch-profile https
    ```
 
    The app will be available at `https://localhost:7277` or `http://localhost:5071` by default.
@@ -78,7 +77,3 @@ docker run -p 8080:80 weatherwebsite
 ## License
 
 This project is licensed under the MIT License.
-
----
-
-**Note:** The `WeatherWebsiteAPI` project is a template/sample API and not used by the main web application by default.

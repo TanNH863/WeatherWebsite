@@ -133,6 +133,13 @@
     "Lng": 105.8542
   },
   {
+    "ID": "YKS",
+    "Name": "Yakutsk, Russia",
+    "TimeZone": "Asia/Yakutsk",
+    "Lat": 62.0339,
+    "Lng": 129.7331
+  },
+  {
     "ID": "AKL",
     "Name": "Auckland, New Zealand",
     "TimeZone": "Pacific/Auckland",

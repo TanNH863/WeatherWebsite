@@ -26,7 +26,7 @@ namespace WeatherWebsite.Controllers
             ViewData["Locations"] = new SelectList(locations, "Name", "Name");
 
             // Default location for the initial load
-            string selectedLocation = "London, UK";
+            string selectedLocation = "London, England, UK";
             var selectedTimeZone = locations.First(l => l.Name == selectedLocation).TimeZone;
             ViewData["SelectedLocation"] = selectedLocation;
             ViewData["SelectedTimeZone"] = selectedTimeZone;

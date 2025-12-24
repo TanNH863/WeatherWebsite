@@ -2,19 +2,38 @@
     ViewData["Title"] = "Weather Map";
 }
 
-<div>
-    <select id="layerSelect" onchange="setWeatherLayer(this.value)">
-        <option>Temperature</option>
-        <option>Clouds</option>
-        <option>Precipitation</option>
-        <option>Pressure</option>
-        <option>Wind</option>
-    </select>
-    <div id="map"></div>
-    <div class="chat-bubble" id="chatBubble" style="display: none;">
-        <h4>Location: <span id="bubbleLocation">Unknown</span></h4>
-        <h4>Weather Layer: <span id="bubbleLayer">Temperature</span></h4>
+<div class="weather-map-container">
+    <div class="controls-overlay">
+        <div class="controls-top">
+            <label for="layerSelect" class="control-label">Layer <span class="toggle-handle" onclick="toggleControls()">▾</span></label>
+            <select id="layerSelect" onchange="setWeatherLayer(this.value)">
+                <option>Temperature</option>
+                <option>Clouds</option>
+                <option>Precipitation</option>
+                <option>Pressure</option>
+                <option>Wind</option>
+            </select>
+        </div>
+        <div id="legend" class="legend">
+            <strong>Legend</strong>
+            <div class="legend-item"><span class="swatch hot"></span> Hot</div>
+            <div class="legend-item"><span class="swatch cool"></span> Cool</div>
+            <div class="legend-item"><span class="swatch cloud"></span> Clouds</div>
+        </div>
     </div>
+
+    <div id="map" class="map"></div>
+
+    <div class="chat-bubble" id="chatBubble" style="display: none;">
+        <button class="close-bubble" onclick="hideChatBubble()">✕</button>
+        <div class="bubble-content">
+            <h4 id="bubbleTitle">Unknown</h4>
+            <p id="bubbleWeather"></p>
+            <p class="bubble-meta">Layer: <span id="bubbleLayer">Temperature</span></p>
+        </div>
+    </div>
+
+    <div id="loading" class="loading" style="display:none;">Loading…</div>
 </div>
 
 @section scripts {
@@ -22,8 +41,8 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // Initialize map
-        let map = L.map('map').setView([60.1553, -1.1456], 5);
+        // Initialize map (responsive container)
+        let map = L.map('map', { zoomControl: true }).setView([60.1553, -1.1456], 5);
         let marker = null;
 
         // Base map (OpenStreetMap)
@@ -34,11 +53,11 @@
         // Weather overlay (temperature)
         let weatherLayer = L.tileLayer(
             'https://localhost:7022/api/weathermap/tile/temp_new/{z}/{x}/{y}', {
-            attribution: '&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
-            opacity: 0.5
-        }).addTo(map);
+                attribution: '&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
+                opacity: 0.5
+            }).addTo(map);
 
-        // Layers selector
+        // Layers selector map
         const availableLayers = {
             "Temperature": `temp_new`,
             "Clouds": `clouds_new`,
@@ -47,17 +66,24 @@
             "Wind": `wind_new`
         };
 
-        // Function to change weather overlay
         function setWeatherLayer(layerName) {
-            map.removeLayer(weatherLayer);
+            document.getElementById('loading').style.display = 'block';
+            if (map.hasLayer(weatherLayer)) {
+                map.removeLayer(weatherLayer);
+            }
             weatherLayer = L.tileLayer(
                 `https://localhost:7022/api/weathermap/tile/${availableLayers[layerName]}/{z}/{x}/{y}`, {
-                attribution: '&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
-                opacity: 0.5
-            }
-            );
+                    attribution: '&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
+                    opacity: 0.5
+                }
+            ).on('load', function() { document.getElementById('loading').style.display = 'none'; })
+             .on('tileerror', function() { document.getElementById('loading').style.display = 'none'; });
             weatherLayer.addTo(map);
             document.getElementById('bubbleLayer').textContent = layerName;
+        }
+
+        function hideChatBubble() {
+            document.getElementById('chatBubble').style.display = 'none';
         }
 
         // Click event to show location info
@@ -69,6 +95,9 @@
             }
             marker = L.marker([lat, lng]).addTo(map);
 
+            // small UI updates
+            document.getElementById('loading').style.display = 'block';
+
             // Reverse geocoding for location
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`)
                 .then(response => response.json())
@@ -78,7 +107,7 @@
                         data.address.state || 'Unknown';
                     let country = data.address.country || 'Unknown';
 
-                    document.getElementById('bubbleLocation').textContent = `${city}, ${country}`;
+                    document.getElementById('bubbleTitle').textContent = `${city}, ${country}`;
                     document.getElementById('chatBubble').style.display = 'block';
 
                     // Fetch live weather (OpenWeatherMap)
@@ -89,20 +118,34 @@
                             const desc = weatherData.weather[0].description;
                             const icon = weatherData.weather[0].icon;
 
-                            // Append weather info to chat bubble
-                            document.getElementById('chatBubble').innerHTML = `
-                                <h4>${city}, ${country}</h4>
-                                <p><b>${temp}°C</b>, ${desc}</p>
-                                <h4>Layer: <span id="bubbleLayer">${document.getElementById('bubbleLayer').textContent}</span></h4>
-                            `;
+                            document.getElementById('bubbleWeather').innerHTML = `<b>${temp}°C</b> — ${desc}`;
+                            document.getElementById('bubbleLayer').textContent = document.getElementById('bubbleLayer').textContent;
+                            document.getElementById('loading').style.display = 'none';
                         })
                         .catch(err => {
                             console.error('Error fetching weather data:', err);
+                            document.getElementById('bubbleWeather').textContent = 'Weather unavailable';
+                            document.getElementById('loading').style.display = 'none';
                         });
                 })
                 .catch(err => {
                     console.error('Error fetching location:', err);
+                    document.getElementById('bubbleTitle').textContent = 'Unknown location';
+                    document.getElementById('chatBubble').style.display = 'block';
+                    document.getElementById('loading').style.display = 'none';
                 });
         });
+
+        // Controls collapse/expand behavior
+        let controlsCollapsed = false;
+        function toggleControls() {
+            const c = document.querySelector('.controls-overlay');
+            c.classList.toggle('collapsed');
+            controlsCollapsed = c.classList.contains('collapsed');
+        }
+        if (window.innerWidth < 700) {
+            const co = document.querySelector('.controls-overlay');
+            if (co) { co.classList.add('collapsed'); controlsCollapsed = true; }
+        }
     </script>
 }
